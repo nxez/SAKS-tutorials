@@ -27,7 +27,7 @@ import sys, urllib, urllib2, json
 SAKS = SAKSHAT()
 
 def get_pm25():
-    url = 'https://api.heweather.com/x3/weather?cityid=CN101020100&key=3a805395d23e42d32b90714189f8bdd6f5'
+    url = 'https://api.heweather.com/x3/weather?cityid=CN101020100&key=xxx'
     req = urllib2.Request(url)
     resp = urllib2.urlopen(req)
     content = resp.read()
@@ -50,7 +50,9 @@ if __name__ == "__main__":
     while True:
         pm25 = get_pm25()
         if pm25 == -1:
+            time.sleep(30)
             continue
+
         #严重污染
         if pm25 >= 250:
             SAKS.ledrow.off()
@@ -78,5 +80,7 @@ if __name__ == "__main__":
             SAKS.ledrow.items[4].on()
             SAKS.ledrow.items[5].on()
 
+        #print (("% 4d" % pm25).replace(' ','#'))
+        SAKS.digital_display.show(("% 4d" % pm25).replace(' ','#'))
         time.sleep(1800)
     input("Enter any keys to exit...")
