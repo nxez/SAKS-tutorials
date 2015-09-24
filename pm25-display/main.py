@@ -25,10 +25,16 @@ import sys, urllib, urllib2, json
 
 #Declare the SAKS Board
 SAKS = SAKSHAT()
+'''
+cityid 和 key 需要根据实际情况替换
+参考 http://www.heweather.com/documents/api
+http://www.heweather.com/documents/cn-city-list
+'''
+weather_url = 'https://api.heweather.com/x3/weather?cityid=CN101020100&key=xxx'
 
 def get_pm25():
-    url = 'https://api.heweather.com/x3/weather?cityid=CN101020100&key=xxx'
-    req = urllib2.Request(url)
+    global weather_url
+    req = urllib2.Request(weather_url)
     resp = urllib2.urlopen(req)
     content = resp.read()
     if(content):
@@ -53,34 +59,35 @@ if __name__ == "__main__":
             time.sleep(30)
             continue
 
-        #严重污染
+        #严重污染，红灯亮蜂鸣器Beep
         if pm25 >= 250:
             SAKS.ledrow.off()
             SAKS.ledrow.items[7].on()
             SAKS.buzzer.beepAction(0.05,0.05,3)
-        #重度污染
+        #重度污染，红灯亮
         if pm25 < 250:
             SAKS.ledrow.off()
             SAKS.ledrow.items[7].on()
-        #中度污染
+        #中度污染，红灯亮
         if pm25 < 150:
             SAKS.ledrow.off()
             SAKS.ledrow.items[7].on()
-        #轻度污染
+        #轻度污染，黄灯亮
         if pm25 < 115:
             SAKS.ledrow.off()
             SAKS.ledrow.items[6].on()
-        #良
+        #良，1绿灯亮
         if pm25 < 75:
             SAKS.ledrow.off()
             SAKS.ledrow.items[4].on()
-        #优
+        #优，2绿灯亮
         if pm25 < 35:
             SAKS.ledrow.off()
             SAKS.ledrow.items[4].on()
             SAKS.ledrow.items[5].on()
 
         #print (("% 4d" % pm25).replace(' ','#'))
+        #数码管显示PM2.5数值
         SAKS.digital_display.show(("% 4d" % pm25).replace(' ','#'))
         time.sleep(1800)
     input("Enter any keys to exit...")
