@@ -86,8 +86,8 @@ if __name__ == "__main__":
             SAKS.ledrow.items[4].on()
             SAKS.ledrow.items[5].on()
 
-        #print (("% 4d" % pm25).replace(' ','#'))
+        #print (("%4d" % pm25).replace(' ','#'))
         #数码管显示PM2.5数值
-        SAKS.digital_display.show(("% 4d" % pm25).replace(' ','#'))
+        SAKS.digital_display.show(("%4d" % pm25).replace(' ','#'))
         time.sleep(1800)
     input("Enter any keys to exit...")
