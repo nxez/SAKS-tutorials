@@ -1,0 +1,1 @@
+../../SAKS-SDK/entities/ds18b20.py
