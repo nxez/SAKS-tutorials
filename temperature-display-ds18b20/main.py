@@ -21,7 +21,6 @@ __license__  = 'Copyright (c) 2015 NXEZ.COM'
 
 from sakshat import SAKSHAT
 import time
-import sys, urllib, urllib2, json
 
 #Declare the SAKS Board
 SAKS = SAKSHAT()
