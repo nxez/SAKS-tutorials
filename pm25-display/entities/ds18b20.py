@@ -107,6 +107,6 @@ class DS18B20(object):
         :return: Return the temperature from ds18b20, return -128 means get a error.
         '''
         if not self.is_exist:
-            return -128
+            return -128.0
         else:
             return self.read_temp(index)
