@@ -27,6 +27,7 @@ SAKS = SAKSHAT()
 
 if __name__ == "__main__":
     while True:
+        #从 ds18b20 读取温度（摄氏度为单位）
         temp = SAKS.ds18b20.temperature
         #返回值为 -128.0 表示读取失败
         if temp == -128.0 :
