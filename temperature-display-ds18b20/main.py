@@ -31,7 +31,7 @@ if __name__ == "__main__":
         temp = SAKS.ds18b20.temperature
         #返回值为 -128.0 表示读取失败
         if temp == -128.0 :
-            #30秒后再次尝试
+            #10秒后再次尝试
             time.sleep(10)
             continue
 
