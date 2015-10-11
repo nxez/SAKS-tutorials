@@ -85,7 +85,6 @@ class DipSwitch2Bit(object):
         for o in self.__observers:
             #o.update(self.__status)
             o.on_dip_switch_2bit_status_changed(self.__status)
-            print('notify_observers')
 
     def status_changed(self):
         self.notify_observers()

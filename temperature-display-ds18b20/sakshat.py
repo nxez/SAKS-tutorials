@@ -41,7 +41,7 @@ class SAKSHAT(object):
     tactrow = None
 
     def saks_gpio_init(self):
-        print 'saks_gpio_init'
+        #print 'saks_gpio_init'
         GPIO.setwarnings(False)
         GPIO.cleanup()
         GPIO.setmode(GPIO.BCM)
