@@ -52,6 +52,8 @@ def dip_switch_status_changed_handler(status):
         else:
             SAKS.ledrow.items[3].off()
 
+    #print(status)
+
 #在检测到轻触开关触发时自动执行此函数
 def tact_event_handler(pin, status):
     '''
