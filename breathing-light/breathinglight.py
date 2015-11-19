@@ -37,7 +37,7 @@ def process_exist():
     stdout = proc.communicate()
     for line in stdout:
         if line.count('http') > 0:
-            print(line)
+            #print(line)
             return True
 
     return False
