@@ -36,9 +36,10 @@ def process_exist():
     proc = subprocess.Popen("ps aux | grep wget", stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
     stdout = proc.communicate()
     for line in stdout:
-        if 'http' in line:
-            #print(line)
+        if line.count('http') > 0:
+            print(line)
             return True
+
     return False
 
 try:
