@@ -29,7 +29,7 @@ PIN_NO_LED = 7
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(PIN_NO_BEEP, GPIO.OUT, initial=GPIO.HIGH)
-GPIO.setup(PIN_NO_LED, GPIO.OUT)
+GPIO.setup(PIN_NO_LED, GPIO.OUT, initial=GPIO.HIGH)
 
 # 单次哔声和LED发光
 def beep(seconds):
