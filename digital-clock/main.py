@@ -26,18 +26,38 @@ import time
 #Declare the SAKS Board
 SAKS = SAKSHAT()
 
+dp = True
+alarm_beep = False
+
 if __name__ == "__main__":
     while True:
-        #从 ds18b20 读取温度（摄氏度为单位）
-        temp = SAKS.ds18b20.temperature
-        #返回值为 -128.0 表示读取失败
-        if temp == -128.0 :
-            #10秒后再次尝试
-            time.sleep(10)
-            continue
+        # 以下代码获取系统时间、时、分、秒、星期的数值
+        t = time.localtime()
+        h = t.tm_hour
+        m = t.tm_min
+        s = t.tm_sec
+        w = time.strftime('%w',t)
+        #print h,m,s,w
 
-        print (("%5.1f" % temp).replace(' ','#'))
-        #数码管显示温度数值，5位(含小数点)、精确到小数点1后1位
-        SAKS.digital_display.show(("%5.1f" % temp).replace(' ','#'))
-        time.sleep(5)
+        # 判断是否为整点
+        if m == 0 and s == 0:
+            # 以下注释部分用于让报时的脚本跳过周六和周日（睡个懒觉放松下不容易）
+            #if w==0 or w==6:
+            #    continue
+            # 以下代码判断当时间在晚间22点至早间8点期间不报时以免影响睡眠
+            if h > 22 or h < 8:
+                continue
+            # 小时数N大于12点的情况下，哔N-12次
+            if h > 12:
+                h = h - 12
+            SAKS.buzzer.beepAction (0.3, 0.5, h)
+
+        if dp:
+            #数码管显示小时和分，最后一位的小点每秒闪烁一次
+            SAKS.digital_display.show(("%0d%0d." % (h, m)))
+        else:
+            SAKS.digital_display.show(("%0d%0d" % (h, m)))
+            dp = not dp
+
+        time.sleep(0.5)
     input("Enter any keys to exit...")
