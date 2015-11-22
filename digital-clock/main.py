@@ -39,6 +39,7 @@ if __name__ == "__main__":
         w = time.strftime('%w',t)
         #print h,m,s,w
 
+        '''
         # 判断是否为整点
         if m == 0 and s == 0:
             # 以下注释部分用于让报时的脚本跳过周六和周日（睡个懒觉放松下不容易）
@@ -51,13 +52,14 @@ if __name__ == "__main__":
             if h > 12:
                 h = h - 12
             SAKS.buzzer.beepAction (0.3, 0.5, h)
+        '''
 
         if dp:
             #数码管显示小时和分，最后一位的小点每秒闪烁一次
             SAKS.digital_display.show(("%0d%0d." % (h, m)))
         else:
             SAKS.digital_display.show(("%0d%0d" % (h, m)))
-            dp = not dp
+        dp = not dp
 
         time.sleep(0.5)
     input("Enter any keys to exit...")
