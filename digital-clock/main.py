@@ -26,8 +26,24 @@ import time
 #Declare the SAKS Board
 SAKS = SAKSHAT()
 
-dp = True
-alarm_beep = False
+__dp = True
+__alarm_beep_status = False
+# 在这里设定闹钟定时时间
+#__alarm_time = '18:00:00'
+__alarm_time = "15:28:20"
+
+#在检测到轻触开关触发时自动执行此函数
+def tact_event_handler(pin, status):
+    '''
+    called while the status of tacts changed
+    :param pin: pin number which stauts of tact is changed
+    :param status: current status
+    :return: void
+    '''
+    global __alarm_beep_status
+    # 停止闹钟响铃（按下任何轻触开关均可触发）
+    __alarm_beep_status = False
+
 
 if __name__ == "__main__":
     while True:
@@ -38,28 +54,22 @@ if __name__ == "__main__":
         s = t.tm_sec
         w = time.strftime('%w',t)
         #print h,m,s,w
+        print "%0d:%0d:%0d" % (h, m, s)
 
-        '''
-        # 判断是否为整点
-        if m == 0 and s == 0:
-            # 以下注释部分用于让报时的脚本跳过周六和周日（睡个懒觉放松下不容易）
-            #if w==0 or w==6:
-            #    continue
-            # 以下代码判断当时间在晚间22点至早间8点期间不报时以免影响睡眠
-            if h > 22 or h < 8:
-                continue
-            # 小时数N大于12点的情况下，哔N-12次
-            if h > 12:
-                h = h - 12
-            SAKS.buzzer.beepAction (0.3, 0.5, h)
-        '''
+        if ("%0d:%0d:%0d" % (h, m, s)) == __alarm_time:
+            __alarm_beep_status = True
 
-        if dp:
-            #数码管显示小时和分，最后一位的小点每秒闪烁一次
+        if __dp:
+            # 数码管显示小时和分，最后一位的小点每秒闪烁一次
             SAKS.digital_display.show(("%0d%0d." % (h, m)))
+            # 判断是否应该响起闹钟
+            if __alarm_beep_status:
+                SAKS.buzzer.on()
         else:
             SAKS.digital_display.show(("%0d%0d" % (h, m)))
-        dp = not dp
+            if __alarm_beep_status:
+                SAKS.buzzer.off()
+        __dp = not __dp
 
         time.sleep(0.5)
     input("Enter any keys to exit...")
