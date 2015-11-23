@@ -28,9 +28,9 @@ SAKS = SAKSHAT()
 
 __dp = True
 __alarm_beep_status = False
+__alarm_beep_times = 0
 # 在这里设定闹钟定时时间
-#__alarm_time = '18:00:00'
-__alarm_time = "15:28:30"
+__alarm_time = "18:10:00"
 
 #在检测到轻触开关触发时自动执行此函数
 def tact_event_handler(pin, status):
@@ -41,11 +41,18 @@ def tact_event_handler(pin, status):
     :return: void
     '''
     global __alarm_beep_status
+    global __alarm_beep_times
     # 停止闹钟响铃（按下任何轻触开关均可触发）
     __alarm_beep_status = False
-
+    __alarm_beep_times = 0
+    SAKS.buzzer.off()
+    SAKS.ledrow.items[6].off()
 
 if __name__ == "__main__":
+    #设定轻触开关回调函数
+    SAKS.tact_event_handler = tact_event_handler
+    SAKS.buzzer.off()
+    SAKS.ledrow.items[6].off()
     while True:
         # 以下代码获取系统时间、时、分、秒、星期的数值
         t = time.localtime()
@@ -58,17 +65,25 @@ if __name__ == "__main__":
 
         if ("%02d:%02d:%02d" % (h, m, s)) == __alarm_time:
             __alarm_beep_status = True
+            __alarm_beep_times = 0
 
         if __dp:
             # 数码管显示小时和分，最后一位的小点每秒闪烁一次
-            SAKS.digital_display.show(("%0d%0d." % (h, m)))
+            SAKS.digital_display.show(("%02d%02d." % (h, m)))
             # 判断是否应该响起闹钟
             if __alarm_beep_status:
                 SAKS.buzzer.on()
+                SAKS.ledrow.items[6].on()
+                __alarm_beep_times = __alarm_beep_times + 1
+                # 30次没按下停止键则自动停止闹铃
+                if __alarm_beep_times > 30:
+                    __alarm_beep_status = False
+                    __alarm_beep_times = 0
         else:
-            SAKS.digital_display.show(("%0d%0d" % (h, m)))
+            SAKS.digital_display.show(("%02d%02d" % (h, m)))
             if __alarm_beep_status:
                 SAKS.buzzer.off()
+                SAKS.ledrow.items[6].off()
         __dp = not __dp
 
         time.sleep(0.5)
