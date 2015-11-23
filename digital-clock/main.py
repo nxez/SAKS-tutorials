@@ -30,7 +30,7 @@ __dp = True
 __alarm_beep_status = False
 # 在这里设定闹钟定时时间
 #__alarm_time = '18:00:00'
-__alarm_time = "15:28:20"
+__alarm_time = "15:28:30"
 
 #在检测到轻触开关触发时自动执行此函数
 def tact_event_handler(pin, status):
