@@ -63,7 +63,7 @@ if __name__ == "__main__":
     while True:
         if __timer_running:
             __end_time = datetime.utcnow()
-            c = (__end_time - __start_time)
+            c = __end_time - __start_time
             print c.seconds
             print c.microseconds
             SAKS.digital_display.show(("%02d.%02d" % (c.seconds, c.microseconds)))
