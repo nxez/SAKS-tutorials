@@ -71,10 +71,10 @@ class SAKSHAT(object):
         self.saks_gpio_init()
         self.buzzer = entities.Buzzer(PINS.BUZZER, GPIO.LOW)
         self.ledrow = entities.LedRow(PINS.LEDS, GPIO.LOW)
-        #self.ds18b20 = entities.DS18B20(PINS.DS18B20)
+        self.ds18b20 = entities.DS18B20(PINS.DS18B20)
         self.digital_display = entities.DigitalDisplay({'seg': PINS.DIGITAL_DISPLAY, 'sel': PINS.DIGITAL_DISPLAY_SELECT}, GPIO.LOW)
-        #self.dip_switch = entities.DipSwitch2Bit([PINS.DIP_SWITCH_1, PINS.DIP_SWITCH_2], GPIO.LOW)
-        #self.dip_switch.register(self)
+        self.dip_switch = entities.DipSwitch2Bit([PINS.DIP_SWITCH_1, PINS.DIP_SWITCH_2], GPIO.LOW)
+        self.dip_switch.register(self)
         self.tactrow = entities.TactRow([PINS.TACT_LEFT, PINS.TACT_RIGHT], GPIO.LOW)
         for t in self.tactrow.items:
             t.register(self)
