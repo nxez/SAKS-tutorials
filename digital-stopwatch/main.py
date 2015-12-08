@@ -31,6 +31,8 @@ SAKS = SAKSHAT()
 __start_time = datetime.utcnow()
 __end_time = datetime.utcnow()
 __timer_running = False
+__seconds = 0
+__microseconds = 0
 
 #在检测到轻触开关触发时自动执行此函数
 def tact_event_handler(pin, status):
@@ -43,6 +45,8 @@ def tact_event_handler(pin, status):
     global __start_time
     global __end_time
     global __timer_running
+    global __seconds
+    global __microseconds
 
     if pin == PINS.TACT_RIGHT and status == True:
         if __timer_running:
@@ -53,7 +57,7 @@ def tact_event_handler(pin, status):
 
     if pin == PINS.TACT_LEFT and status == True:
         SAKS.digital_display.show(("%02d.%02d" % (0, 0)))
-        __timer_running = not __timer_running
+        __timer_running = False
 
 if __name__ == "__main__":
     #设定轻触开关回调函数
@@ -64,11 +68,12 @@ if __name__ == "__main__":
         if __timer_running:
             __end_time = datetime.utcnow()
             c = __end_time - __start_time
-            print c.seconds
-            print c.microseconds
+            #print c.seconds
+            #print c.microseconds
             SAKS.digital_display.show(("%02d.%02d" % (c.seconds, c.microseconds)))
         else:
-            SAKS.digital_display.show(("%02d.%02d" % (0, 0)))
+            pass
+            #SAKS.digital_display.show(("%02d.%02d" % (0, 0)))
 
-        time.sleep(0.005)
+        time.sleep(0.01)
     input("Enter any keys to exit...")
