@@ -183,6 +183,8 @@ class LedRow(object):
         '''
         for i in range(len(status)):
             #print(str(i) + str(status[i]))
+            if status[i] is None:
+                continue
             if status[i]:
                 self.__leds[i].on()
             else:
