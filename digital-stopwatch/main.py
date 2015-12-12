@@ -51,11 +51,6 @@ def tact_event_handler(pin, status):
             __start_time = datetime.utcnow()
             SAKS.digital_display.show(("%02d.%02d" % (0, 0)))
         __timer_running = not __timer_running
-    '''
-    if pin == PINS.TACT_LEFT and status == True:
-        SAKS.digital_display.show(("%02d.%02d" % (0, 0)))
-        __timer_running = False
-    '''
 
 if __name__ == "__main__":
     #设定轻触开关回调函数
