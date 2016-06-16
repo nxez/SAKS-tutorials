@@ -34,6 +34,8 @@ __current_mode = 0
 __current_command = 0
 __modes = [ 'display', '1' ]
 __commands = { 'display': [ '.time', '.cputemp', '.roomtemp', '.citytemp', '.pm25', '.stockmarketindex' ], '1': [ '.0', '.1' ] }
+
+__commands = { 'display': [ '.time', '.cputemp', '.roomtemp', '.stockmarketindex' ], '1': [ '.0', '.1' ] }
 __current_command_name = ''
 __processing_list = {}
 
@@ -50,7 +52,9 @@ def display_cpu_temp():
                 SAKS.buzzer.beepAction(0.02, 0.02, 20)
             time.sleep(1)
         else:
+            __processing_list['display.cputemp'] = False
             break
+        time.sleep(0.5)
 
 def display_pm25():
     global __current_command_name
@@ -93,7 +97,10 @@ def display_pm25():
             SAKS.digital_display.show(("%4d" % pm25).replace(' ','#'))
             time.sleep(1800)
         else:
+            __processing_list['display.pm25'] = False
             break
+
+        time.sleep(0.5)
 
 def display_city_temp():
     global __current_command_name
@@ -111,7 +118,10 @@ def display_city_temp():
             SAKS.digital_display.show(("%5.1f" % temp).replace(' ','#'))
             time.sleep(1800)
         else:
+            __processing_list['display.citytemp'] = False
             break
+
+        time.sleep(0.5)
 
 def display_room_temp():
     global __current_command_name
@@ -130,7 +140,10 @@ def display_room_temp():
             SAKS.digital_display.show(("%5.1f" % temp).replace(' ','#'))
             time.sleep(5)
         else:
+            __processing_list['display.roomtemp'] = False
             break
+
+        time.sleep(0.5)
 
 def display_time():
     global __current_command_name
@@ -174,26 +187,33 @@ def display_time():
                     #SAKS.ledrow.items[6].off()
             __dp = not __dp
 
-            time.sleep(0.5)
+            #time.sleep(0.5)
         else:
+            __processing_list['display.time'] = False
             break
+
+        time.sleep(0.5)
 
 def display_stock_market_index():
     global __current_command_name
     while True:
         if __current_command_name == 'display.stockmarketindex':
             pattern = re.compile(r'(\d*\.\d*)')
-            r = requests.get('http://hq.sinajs.cn/list=s_sh000001')
+            r = requests.get('http://hq.sinajs.cn/list=s_sh000001', timeout = 5)
             #print r.text.encode('utf-8')
             #print r.encoding
             match = pattern.findall(r.text)
             if match:
-                return match[0]
+                SAKS.digital_display.show(("%04d" % int(float(match[0]))))
+                #return match[0]
             else:
-                return 0
+                SAKS.digital_display.show("###0")
+                #return 0
         else:
+            __processing_list['display.stockmarketindex'] = False
             break
-    pass
+
+        time.sleep(0.5)
 
 def alarm_process():
     pass
@@ -226,33 +246,33 @@ def tact_event_handler(pin, status):
 
     if __current_command >= len(__commands['display']):
         __current_command = 0
-    else:
-        __current_command += 1
 
     __current_command_name = __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command]
     print(__current_command_name)
 
     if __current_command_name == 'display.cputemp' and not __processing_list['display.cputemp']:
-        display_cpu_temp()
         __processing_list['display.cputemp'] = True
+        display_cpu_temp()
     elif __current_command_name == 'display.pm25' and not __processing_list['display.pm25']:
-        display_pm25()
         __processing_list['display.pm25'] = True
+        display_pm25()
     elif __current_command_name == 'display.citytemp' and not __processing_list['display.citytemp']:
-        display_city_temp()
         __processing_list['display.citytemp'] = True
+        display_city_temp()
     elif __current_command_name == 'display.roomtemp' and not __processing_list['display.roomtemp']:
-        display_room_temp()
         __processing_list['display.roomtemp'] = True
+        display_room_temp()
     elif __current_command_name == 'display.time' and not __processing_list['display.time']:
-        display_time()
         __processing_list['display.time'] = True
+        display_time()
     elif __current_command_name == 'display.stockmarketindex' and not __processing_list['display.stockmarketindex']:
-        display_stock_market_index()
         __processing_list['display.stockmarketindex'] = True
+        display_stock_market_index()
     else:
-        pass
+        print('ELSE:' + __current_command_name)
 
+
+    __current_command += 1
     time.sleep(0.05)
 
 
@@ -283,7 +303,7 @@ weather_url = 'https://api.heweather.com/x3/weather?cityid=CN101020100&key=xxx'
 def get_pm25():
     global weather_url
     req = urllib2.Request(weather_url)
-    resp = urllib2.urlopen(req)
+    resp = urllib2.urlopen(req, timeout = 5)
     content = resp.read()
     if(content):
         weatherJSON = json.JSONDecoder().decode(content)
@@ -303,7 +323,7 @@ def get_pm25():
 def get_city_temp():
     global weather_url
     req = urllib2.Request(weather_url)
-    resp = urllib2.urlopen(req)
+    resp = urllib2.urlopen(req, timeout = 5)
     content = resp.read()
     if(content):
         weatherJSON = json.JSONDecoder().decode(content)
@@ -326,18 +346,16 @@ if __name__ == "__main__":
     #print(PINS.BUZZER)
     #print(SAKS.appRoot)
 
-    __processing_list['display.cputemp'] = Fasle
-    __processing_list['display.pm25'] = Fasle
-    __processing_list['display.citytemp'] = Fasle
-    __processing_list['display.roomtemp'] = Fasle
-    __processing_list['display.time'] = True
-    __processing_list['display.stockmarketindex'] = Fasle
+    __processing_list['display.cputemp'] = False
+    __processing_list['display.pm25'] = False
+    __processing_list['display.citytemp'] = False
+    __processing_list['display.roomtemp'] = False
+    __processing_list['display.time'] = False
+    __processing_list['display.stockmarketindex'] = False
 
     SAKS.dip_switch_status_changed_handler = dip_switch_status_changed_handler
     SAKS.tact_event_handler = tact_event_handler
-    SAKS.ledrow.on()
-    time.sleep(0.5)
-    SAKS.ledrow.off()
+
     time.sleep(0.5)
     print(SAKS.ds18b20.temperature)
     #SAKS.digital_display.show('#.1#.234')
@@ -345,9 +363,6 @@ if __name__ == "__main__":
 
     # 将显示“1234”4位数字，并且每一位右下角的小点点亮
     SAKS.digital_display.show("1.2.3.4.")
-    time.sleep(0.5)
-    # 将显示“1234”4位数字，并且数字2后面的小点点亮
-    SAKS.digital_display.show("12.34")
     time.sleep(0.5)
     # 在第4位数码管显示“1”，其他3位数码管不显示
     SAKS.digital_display.show("###1")
