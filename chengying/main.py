@@ -34,10 +34,13 @@ __current_mode = 0
 __current_command = 0
 __modes = [ 'display', '1' ]
 __commands = { 'display': [ '.time', '.cputemp', '.roomtemp', '.citytemp', '.pm25', '.stockmarketindex' ], '1': [ '.0', '.1' ] }
+__current_command_name = ''
+__processing_list = {}
 
 def display_cpu_temp():
+    global __current_command_name
     while True:
-        if __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command] == 'display.cputemp':
+        if __current_command_name == 'display.cputemp':
             t = get_cpu_temp()
             # Uncomment if need print the temperature to screen
             #print("%.2f" % t)
@@ -50,8 +53,9 @@ def display_cpu_temp():
             break
 
 def display_pm25():
+    global __current_command_name
     while True:
-        if __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command] == 'display.pm25':
+        if __current_command_name == 'display.pm25':
             pm25 = get_pm25()
             if pm25 == -1:
                 time.sleep(30)
@@ -92,8 +96,9 @@ def display_pm25():
             break
 
 def display_city_temp():
+    global __current_command_name
     while True:
-        if __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command] == 'display.citytemp':
+        if __current_command_name == 'display.citytemp':
             temp = get_city_temp()
             #返回值为 -128.0 表示读取失败
             if temp == -128.0 :
@@ -109,8 +114,9 @@ def display_city_temp():
             break
 
 def display_room_temp():
+    global __current_command_name
     while True:
-        if __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command] == 'display.roomtemp':
+        if __current_command_name == 'display.roomtemp':
             #从 ds18b20 读取温度（摄氏度为单位）
             temp = SAKS.ds18b20.temperature
             #返回值为 -128.0 表示读取失败
@@ -127,6 +133,7 @@ def display_room_temp():
             break
 
 def display_time():
+    global __current_command_name
     __dp = True
     __alarm_beep_status = False
     __alarm_beep_times = 0
@@ -134,7 +141,7 @@ def display_time():
     __alarm_time = "18:10:00"
 
     while True:
-        if __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command] == 'display.time':
+        if __current_command_name == 'display.time':
             # 以下代码获取系统时间、时、分、秒、星期的数值
             t = time.localtime()
             h = t.tm_hour
@@ -172,8 +179,9 @@ def display_time():
             break
 
 def display_stock_market_index():
+    global __current_command_name
     while True:
-        if __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command] == 'display.stockmarketindex':
+        if __current_command_name == 'display.stockmarketindex':
             pattern = re.compile(r'(\d*\.\d*)')
             r = requests.get('http://hq.sinajs.cn/list=s_sh000001')
             #print r.text.encode('utf-8')
@@ -213,25 +221,35 @@ def tact_event_handler(pin, status):
     print('tact_event_handler')
     print("%d - %s" % (pin, status))
     global  __current_command
+    global __current_command_name
+    global __processing_list
+
     if __current_command >= len(__commands['display']):
         __current_command = 0
     else:
         __current_command += 1
 
-    print(__modes[__current_mode] + __commands[__modes[__current_mode]][__current_command])
+    __current_command_name = __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command]
+    print(__current_command_name)
 
-    if __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command] == 'display.cputemp':
+    if __current_command_name == 'display.cputemp' and not __processing_list['display.cputemp']:
         display_cpu_temp()
-    elif __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command] == 'display.pm25':
+        __processing_list['display.cputemp'] = True
+    elif __current_command_name == 'display.pm25' and not __processing_list['display.pm25']:
         display_pm25()
-    elif __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command] == 'display.citytemp':
+        __processing_list['display.pm25'] = True
+    elif __current_command_name == 'display.citytemp' and not __processing_list['display.citytemp']:
         display_city_temp()
-    elif __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command] == 'display.roomtemp':
+        __processing_list['display.citytemp'] = True
+    elif __current_command_name == 'display.roomtemp' and not __processing_list['display.roomtemp']:
         display_room_temp()
-    elif __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command] == 'display.time':
+        __processing_list['display.roomtemp'] = True
+    elif __current_command_name == 'display.time' and not __processing_list['display.time']:
         display_time()
-    elif __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command] == 'display.stockmarketindex':
+        __processing_list['display.time'] = True
+    elif __current_command_name == 'display.stockmarketindex' and not __processing_list['display.stockmarketindex']:
         display_stock_market_index()
+        __processing_list['display.stockmarketindex'] = True
     else:
         pass
 
@@ -307,6 +325,14 @@ if __name__ == "__main__":
     #SAKS = SAKSController()
     #print(PINS.BUZZER)
     #print(SAKS.appRoot)
+
+    __processing_list['display.cputemp'] = Fasle
+    __processing_list['display.pm25'] = Fasle
+    __processing_list['display.citytemp'] = Fasle
+    __processing_list['display.roomtemp'] = Fasle
+    __processing_list['display.time'] = True
+    __processing_list['display.stockmarketindex'] = Fasle
+
     SAKS.dip_switch_status_changed_handler = dip_switch_status_changed_handler
     SAKS.tact_event_handler = tact_event_handler
     SAKS.ledrow.on()
