@@ -32,10 +32,10 @@ SAKS = SAKSHAT()
 
 __current_mode = 0
 __current_command = 0
-__modes = [ 'display', '1' ]
-__commands = { 'display': [ '.time', '.cputemp', '.roomtemp', '.citytemp', '.pm25', '.stockmarketindex' ], '1': [ '.0', '.1' ] }
+__modes = [ 'display', 'dummy' ]
+__commands = { 'display': [ '.time', '.cputemp', '.roomtemp', '.citytemp', '.pm25', '.stockmarketindex' ], 'dummy': [ '.dummy', '.dummy' ] }
 
-__commands = { 'display': [ '.time', '.cputemp', '.roomtemp', '.stockmarketindex' ], '1': [ '.0', '.1' ] }
+__commands = { 'display': [ '.time', '.cputemp', '.roomtemp', '.stockmarketindex' ], 'dummy': [ '.dummy', '.dummy' ] }
 __current_command_name = ''
 __processing_list = {}
 
@@ -250,30 +250,40 @@ def tact_event_handler(pin, status):
     __current_command_name = __modes[__current_mode] + __commands[__modes[__current_mode]][__current_command]
     print(__current_command_name)
 
+    __current_command += 1
+
     if __current_command_name == 'display.cputemp' and not __processing_list['display.cputemp']:
+        time.sleep(0.05)
         __processing_list['display.cputemp'] = True
         display_cpu_temp()
+        return
     elif __current_command_name == 'display.pm25' and not __processing_list['display.pm25']:
+        time.sleep(0.05)
         __processing_list['display.pm25'] = True
         display_pm25()
+        return
     elif __current_command_name == 'display.citytemp' and not __processing_list['display.citytemp']:
+        time.sleep(0.05)
         __processing_list['display.citytemp'] = True
         display_city_temp()
+        return
     elif __current_command_name == 'display.roomtemp' and not __processing_list['display.roomtemp']:
+        time.sleep(0.05)
         __processing_list['display.roomtemp'] = True
         display_room_temp()
+        return
     elif __current_command_name == 'display.time' and not __processing_list['display.time']:
+        time.sleep(0.05)
         __processing_list['display.time'] = True
         display_time()
+        return
     elif __current_command_name == 'display.stockmarketindex' and not __processing_list['display.stockmarketindex']:
+        time.sleep(0.05)
         __processing_list['display.stockmarketindex'] = True
         display_stock_market_index()
+        return
     else:
         print('ELSE:' + __current_command_name)
-
-
-    __current_command += 1
-    time.sleep(0.05)
 
 
 #def handler(signum, frame):
@@ -342,9 +352,6 @@ def get_city_temp():
 
 if __name__ == "__main__":
     print("main")
-    #SAKS = SAKSController()
-    #print(PINS.BUZZER)
-    #print(SAKS.appRoot)
 
     __processing_list['display.cputemp'] = False
     __processing_list['display.pm25'] = False
@@ -355,18 +362,5 @@ if __name__ == "__main__":
 
     SAKS.dip_switch_status_changed_handler = dip_switch_status_changed_handler
     SAKS.tact_event_handler = tact_event_handler
-
-    time.sleep(0.5)
-    print(SAKS.ds18b20.temperature)
-    #SAKS.digital_display.show('#.1#.234')
-    #print(SAKS.dip_switch.is_on)
-
-    # 将显示“1234”4位数字，并且每一位右下角的小点点亮
-    SAKS.digital_display.show("1.2.3.4.")
-    time.sleep(0.5)
-    # 在第4位数码管显示“1”，其他3位数码管不显示
-    SAKS.digital_display.show("###1")
-    time.sleep(0.5)
-    SAKS.digital_display.off()
 
     input("Enter any keys to exit...")
