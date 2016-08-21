@@ -26,10 +26,19 @@ import urllib2
 import socket
 
 GPIO.setmode(GPIO.BCM)
-# 输出模式
-GPIO.setup(1, GPIO.OUT)
-GPIO.setup(7, GPIO.OUT)
-GPIO.setup(8, GPIO.OUT)
+# 初始化LED组控制引脚
+DS = 6
+SHCP = 19
+STCP = 13
+
+GPIO.setup(DS, GPIO.OUT)
+GPIO.setup(SHCP, GPIO.OUT)
+GPIO.setup(STCP, GPIO.OUT)
+
+GPIO.output(DS, GPIO.LOW)
+GPIO.output(SHCP, GPIO.LOW)
+GPIO.output(STCP, GPIO.LOW)
+
 # 要检测的网址
 url = "http://shumeipai.nxez.com/"
 # 设置超时时间10秒
@@ -38,6 +47,20 @@ urllib2.socket.setdefaulttimeout(10)
 status = 0
 # 检测频率间隔
 interval = 60
+
+def writeBit(data):
+    GPIO.output(DS, data)
+
+    GPIO.output(SHCP, GPIO.LOW)
+    GPIO.output(SHCP, GPIO.HIGH)
+
+#写入8位LED的状态
+def writeByte(data):
+    for i in range (0, 8):
+        writeBit((data >> i) & 0x01)
+    #状态刷新信号
+    GPIO.output(STCP, GPIO.LOW)
+    GPIO.output(STCP, GPIO.HIGH)
 
 def check():
     global status
@@ -61,18 +84,12 @@ while True:
     check()
     #正常状态，绿灯亮
     if status == 200:
-        GPIO.output(1, GPIO.LOW)
-        GPIO.output(7, GPIO.HIGH)
-        GPIO.output(8, GPIO.HIGH)
+        writeByte(0x04)
     #异常状态，黄灯亮
     elif status == 500 or status == 404 or status == 403:
-        GPIO.output(1, GPIO.HIGH)
-        GPIO.output(7, GPIO.LOW)
-        GPIO.output(8, GPIO.HIGH)
+        writeByte(0x10)
     #错误状态，红灯亮
     else:
-        GPIO.output(1, GPIO.HIGH)
-        GPIO.output(7, GPIO.HIGH)
-        GPIO.output(8, GPIO.LOW)
+        writeByte(0x40)
 
     time.sleep(interval)

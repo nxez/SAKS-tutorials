@@ -46,13 +46,13 @@ def tact_event_handler(pin, status):
     __alarm_beep_status = False
     __alarm_beep_times = 0
     SAKS.buzzer.off()
-    SAKS.ledrow.items[6].off()
+    SAKS.ledrow.off_for_index(6)
 
 if __name__ == "__main__":
     #设定轻触开关回调函数
     SAKS.tact_event_handler = tact_event_handler
     SAKS.buzzer.off()
-    SAKS.ledrow.items[6].off()
+    SAKS.ledrow.off_for_index(6)
     while True:
         # 以下代码获取系统时间、时、分、秒、星期的数值
         t = time.localtime()
@@ -73,7 +73,7 @@ if __name__ == "__main__":
             # 判断是否应该响起闹钟
             if __alarm_beep_status:
                 SAKS.buzzer.on()
-                SAKS.ledrow.items[6].on()
+                SAKS.ledrow.on_for_index(6)
                 __alarm_beep_times = __alarm_beep_times + 1
                 # 30次没按下停止键则自动停止闹铃
                 if __alarm_beep_times > 30:
@@ -83,7 +83,7 @@ if __name__ == "__main__":
             SAKS.digital_display.show(("%02d%02d" % (h, m)))
             if __alarm_beep_status:
                 SAKS.buzzer.off()
-                SAKS.ledrow.items[6].off()
+                SAKS.ledrow.off_for_index(6)
         __dp = not __dp
 
         time.sleep(0.5)

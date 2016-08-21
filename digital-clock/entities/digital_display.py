@@ -16,10 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = 'Spoony'
-__version__  = 'version 0.0.1'
-__license__  = 'Copyright (c) 2015 NXEZ.COM'
-
 import RPi.GPIO as GPIO
 import time
 import re
@@ -33,7 +29,7 @@ class DigitalDisplay(object):
     __real_true = GPIO.HIGH
     __numbers = []
     __is_flushing = False
-    __number_code = [0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f, 0x00]
+    __number_code = [0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f, 0x00, 0x40]
 
     def __init__(self, pins, real_true = GPIO.HIGH):
         '''
@@ -49,7 +45,7 @@ class DigitalDisplay(object):
             t1.setDaemon(True)
             t1.start()
         except:
-            print "Error: Unable to start thread by DigitalDisplay"
+            print("Error: Unable to start thread by DigitalDisplay")
 
     #Stauts.
     @property
@@ -66,7 +62,7 @@ class DigitalDisplay(object):
         Set the numbers array to show
         :return: void
         '''
-        pattern = re.compile(r'[#|\d]\.?')
+        pattern = re.compile(r'[-|#|\d]\.?')
         matches = pattern.findall(value)
         #del self.__numbers
         self.__numbers = []
@@ -109,6 +105,8 @@ class DigitalDisplay(object):
     def flush_bit(self, sel, num, dp):
         if num == '#':
             num = 10
+        elif num == '-':
+            num = 11
         else:
             num = int(num)
 

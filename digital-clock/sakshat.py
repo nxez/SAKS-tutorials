@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2015 NXEZ.COM.
+# Copyright (c) 2016 NXEZ.COM.
 # http://www.nxez.com
 #
 # Licensed under the GNU General Public License, Version 2.0 (the "License");
@@ -18,12 +18,8 @@
 
 __author__ = 'Spoony'
 __version__  = 'version 0.0.1'
-__license__  = 'Copyright (c) 2015 NXEZ.COM'
+__license__  = 'Copyright (c) 2016 NXEZ.COM'
 
-import os
-import sys
-#sys.path.append(sys.path[0] + "/entities/")
-#from entities import *
 import RPi.GPIO as GPIO
 from sakspins import SAKSPins as PINS
 import entities
@@ -32,7 +28,6 @@ class SAKSHAT(object):
     '''
     SAKS HAT class, some useful function are declared.
     '''
-    #appRoot = sys.path[0]
     buzzer = None
     ledrow = None
     ds18b20 = None
@@ -49,30 +44,23 @@ class SAKSHAT(object):
         GPIO.setup(PINS.BUZZER, GPIO.OUT)
         GPIO.output(PINS.BUZZER, GPIO.HIGH)
 
-        for p in [PINS.BUZZER, PINS.TACT_RIGHT, PINS.TACT_LEFT, PINS.DIP_SWITCH_1, PINS.DIP_SWITCH_2]:
+        for p in [PINS.IC_TM1637_DI, PINS.IC_TM1637_CLK, PINS.IC_74HC595_DS, PINS.IC_74HC595_SHCP, PINS.IC_74HC595_STCP]:
             GPIO.setup(p, GPIO.OUT)
-            GPIO.output(p, GPIO.HIGH)
+            GPIO.output(p, GPIO.LOW)
 
-        for p in PINS.LEDS + PINS.DIGITAL_DISPLAY + PINS.DIGITAL_DISPLAY_SELECT:
+        for p in [PINS.BUZZER, PINS.TACT_RIGHT, PINS.TACT_LEFT, PINS.DIP_SWITCH_1, PINS.DIP_SWITCH_2]:
             GPIO.setup(p, GPIO.OUT)
             GPIO.output(p, GPIO.HIGH)
 
         for p in [PINS.TACT_RIGHT, PINS.TACT_LEFT, PINS.DIP_SWITCH_1, PINS.DIP_SWITCH_2]:
             GPIO.setup(p, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-            #GPIO.setup(p, GPIO.IN)
-
-        #由于SAKS的蓝色LED和数码管共享引脚，此处将数码管位选关闭，只让信号作用于LED
-        #GPIO.setup(17, GPIO.OUT, initial = GPIO.HIGH)
-        #GPIO.setup(27, GPIO.OUT, initial = GPIO.HIGH)
-        #GPIO.setup(22, GPIO.OUT, initial = GPIO.HIGH)
-        #GPIO.setup(10, GPIO.OUT, initial = GPIO.HIGH)
 
     def __init__(self):
         self.saks_gpio_init()
         self.buzzer = entities.Buzzer(PINS.BUZZER, GPIO.LOW)
-        self.ledrow = entities.LedRow(PINS.LEDS, GPIO.LOW)
+        self.ledrow = entities.Led74HC595({'ds': PINS.IC_74HC595_DS, 'shcp': PINS.IC_74HC595_SHCP, 'stcp': PINS.IC_74HC595_STCP}, GPIO.HIGH)
         self.ds18b20 = entities.DS18B20(PINS.DS18B20)
-        self.digital_display = entities.DigitalDisplay({'seg': PINS.DIGITAL_DISPLAY, 'sel': PINS.DIGITAL_DISPLAY_SELECT}, GPIO.LOW)
+        self.digital_display = entities.DigitalDisplayTM1637({'di': PINS.IC_TM1637_DI, 'clk': PINS.IC_TM1637_CLK}, GPIO.HIGH)
         self.dip_switch = entities.DipSwitch2Bit([PINS.DIP_SWITCH_1, PINS.DIP_SWITCH_2], GPIO.LOW)
         self.dip_switch.register(self)
         self.tactrow = entities.TactRow([PINS.TACT_LEFT, PINS.TACT_RIGHT], GPIO.LOW)

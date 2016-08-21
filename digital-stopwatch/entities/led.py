@@ -16,12 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = 'Spoony'
-__version__  = 'version 0.0.1'
-__license__  = 'Copyright (c) 2015 NXEZ.COM'
-
 import RPi.GPIO as GPIO
 import time
+from threading import Thread
 
 class Led(object):
     '''
@@ -29,7 +26,9 @@ class Led(object):
     '''
     __pin = 0
     __real_true = GPIO.HIGH
+    __pwm = None
     __is_on = False
+    __is_pulse = None
 
     def __init__(self, pin, real_true = GPIO.HIGH):
         '''
@@ -54,13 +53,18 @@ class Led(object):
         '''
         Set the led on
         '''
-        GPIO.output(self.__pin, self.__real_true)
-        self.__is_on = True
+        if not self.__is_pulse:
+            GPIO.output(self.__pin, self.__real_true)
+            self.__is_on = True
 
     def off(self):
         '''
         Set the led off
         '''
+        if self.__is_pulse:
+            self.__is_pulse = False
+            self.__pwm.stop()
+            time.sleep(0.1)
         GPIO.output(self.__pin, not self.__real_true)
         self.__is_on = False
 
@@ -88,6 +92,43 @@ class Led(object):
         for i in range(times):
             self.flash(secs)
             time.sleep(sleepsecs)
+
+    def pulse(self, hertz=50, pause_time=0.01):
+        '''
+        Breath until led off
+        :param hertz: GPIO PWM hertz
+        :param pause_time: breath pause time
+        :return: void
+        '''
+        if self.__pwm == None:
+            self.__pwm = GPIO.PWM(self.__pin, hertz)
+        else:
+            self.__pwm.ChangeFrequency(hertz)
+        self.__pwm.start(0)
+        if self.__is_pulse == None:
+            def pulse_worker():
+                while True:
+                    if self.__is_pulse:
+                        try:
+                            for i in xrange(0, 101, 1):
+                                self.__pwm.ChangeDutyCycle(i)
+                                # off
+                                time.sleep(pause_time)
+                            time.sleep(1)
+                            for i in xrange(100, -1, -1):
+                                self.__pwm.ChangeDutyCycle(i)
+                                # on
+                                time.sleep(pause_time)
+                        except:
+                            continue
+            try:
+                pulse_thread = Thread(target = pulse_worker)
+                pulse_thread.setDaemon(True)
+                pulse_thread.start()
+            except:
+                print('Error: Unable to start thread by Led')
+        self.__is_pulse = True
+        self.__is_on = True
 
 class LedRow(object):
     '''
@@ -189,6 +230,3 @@ class LedRow(object):
                 self.__leds[i].on()
             else:
                 self.__leds[i].off()
-
-
-

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2015 NXEZ.COM.
+# Copyright (c) 2016 NXEZ.COM.
 # http://www.nxez.com
 #
 # Licensed under the GNU General Public License, Version 2.0 (the "License");
@@ -18,44 +18,57 @@
 # tutorials url: http://shumeipai.nxez.com/2015/03/23/saks-diy-tutorials-water-lights.html
 
 __author__ = 'Spoony'
-__license__  = 'Copyright (c) 2015 NXEZ.COM'
+__license__  = 'Copyright (c) 2016 NXEZ.COM'
  
 import RPi.GPIO as GPIO
 import time
-#引脚采用BCM编码
+
 GPIO.setmode(GPIO.BCM)
-#配置一个数组，依次对应8个灯的引脚BCM编码
-pins = [5, 6, 13, 19, 0, 1, 7, 8] #GPIO ports
-#由于SAKS的蓝色LED和数码管共享引脚，此处将数码管位选关闭，只让信号作用于LED
-GPIO.setup(17, GPIO.OUT, initial=GPIO.HIGH)
-GPIO.setup(27, GPIO.OUT, initial=GPIO.HIGH)
-GPIO.setup(22, GPIO.OUT, initial=GPIO.HIGH)
-GPIO.setup(10, GPIO.OUT, initial=GPIO.HIGH)
-#定义一个便捷地设置引脚的方法
-def setp(n, status='off'):
-    if status == 'on':
-        GPIO.output(n, GPIO.LOW)
-    else:
-        GPIO.output(n, GPIO.HIGH)
-#遍历数组，将数组中8个LED引脚初始化
-for i in pins:
-    GPIO.setup(i, GPIO.OUT)
-    setp(i, 'off')
- 
+
+DS = 6
+SHCP = 19
+STCP = 13
+
+def init():
+    GPIO.setup(DS, GPIO.OUT)
+    GPIO.setup(SHCP, GPIO.OUT)
+    GPIO.setup(STCP, GPIO.OUT)
+
+    GPIO.output(DS, GPIO.LOW)
+    GPIO.output(SHCP, GPIO.LOW)
+    GPIO.output(STCP, GPIO.LOW)
+
+def writeBit(data):
+    GPIO.output(DS, data)
+
+    GPIO.output(SHCP, GPIO.LOW)
+    GPIO.output(SHCP, GPIO.HIGH)
+
+#写入8位LED的状态
+def writeByte(data):
+    for i in range (0, 8):
+        writeBit((data >> i) & 0x01)
+    #状态刷新信号
+    GPIO.output(STCP, GPIO.LOW)
+    GPIO.output(STCP, GPIO.HIGH)
+
 try:
-    #当前即将点亮的LED在数组中的位置
-    i = 0
+    init()
+
+    writeByte(0x00)
     while True:
-        #点亮数组中第i个LED
-        setp(pins[i], 'on')
-        #延时0.1秒
-        time.sleep(0.1)
-        #熄灭数组中第i个LED
-        setp(pins[i], 'off')
-        #改变i，使之对应到下一个LED，如果已经是最后一个LED，则对应到第1个LED
-        i += 1
-        if i == len(pins):
-            i = 0
-except:
+        #以下一组8个编码由一组二进制转换而成：
+        #00000001,00000010,00000100,00001000,00010000,00100000,01000000,10000000
+        #分别对应8个LED点亮状态
+        for i in [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80]:
+            writeByte(i)
+            time.sleep(0.1)
+        #LED组全开
+        #writeByte(0xff)
+        #time.sleep(0.1)
+
+except KeyboardInterrupt:
     print "except"
+    #LED组全关
+    writeByte(0x00)
     GPIO.cleanup()

@@ -16,10 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = 'Spoony'
-__version__  = 'version 0.0.1'
-__license__  = 'Copyright (c) 2015 NXEZ.COM'
-
 import RPi.GPIO as GPIO
 import time
 from threading import Thread
@@ -54,8 +50,9 @@ class Tact(object):
         try:
             t1 = Thread(target = self.watching)
             t1.setDaemon(True)
+            #t1.start()
         except:
-            print "Error: Unable to start thread by Tact"
+            print("Error: Unable to start thread by Tact")
 
 
     #Stauts.

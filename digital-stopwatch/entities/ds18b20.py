@@ -16,11 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = 'Spoony'
-__version__  = 'version 0.0.1'
-__license__  = 'Copyright (c) 2015 NXEZ.COM'
-
-import RPi.GPIO as GPIO
 import time
 import subprocess
 import os
@@ -41,8 +36,8 @@ class DS18B20(object):
         :return: void
         '''
         self.__pins = pin
-        os.system('modprobe w1-gpio')
-        os.system('modprobe w1-therm')
+        os.system('sudo modprobe w1-gpio')
+        os.system('sudo modprobe w1-therm')
 
     #Verbs.
     def get_device_file(self, index = 0):

@@ -42,16 +42,16 @@ def dip_switch_status_changed_handler(status):
         #拨码开关第1位状态为ON
         if status[0]:
             #点亮第3个LED
-            SAKS.ledrow.items[2].on()
+            SAKS.ledrow.on_for_index(2)
         else:
-            SAKS.ledrow.items[2].off()
+            SAKS.ledrow.off_for_index(2)
 
         #拨码开关第2位状态为ON
         if status[1]:
             #点亮第4个LED
-            SAKS.ledrow.items[3].on()
+            SAKS.ledrow.on_for_index(3)
         else:
-            SAKS.ledrow.items[3].off()
+            SAKS.ledrow.off_for_index(3)
 
     #print(status)
 
@@ -68,21 +68,21 @@ def tact_event_handler(pin, status):
     if pin == PINS.TACT_RIGHT and status == True:
         #在小灯当前状态关着时将它们点亮并修改小灯当前状态为开; 在小灯当前状态开着时将它们灭掉并修改小灯当前状态为关
         if not __light_status:
-            SAKS.ledrow.items[0].on()
-            SAKS.ledrow.items[1].on()
+            SAKS.ledrow.on_for_index(0)
+            SAKS.ledrow.on_for_index(1)
             #检测第1位拨码开关状态是否为ON
             if SAKS.dip_switch.is_on[0] == True:
                 #点亮第3个LED
-                SAKS.ledrow.items[2].on()
+                SAKS.ledrow.on_for_index(2)
             #检测第2位拨码开关状态是否为ON
             if SAKS.dip_switch.is_on[1] == True:
                 #点亮第4个LED
-                SAKS.ledrow.items[3].on()
+                SAKS.ledrow.on_for_index(3)
         else:
-            SAKS.ledrow.items[0].off()
-            SAKS.ledrow.items[1].off()
-            SAKS.ledrow.items[2].off()
-            SAKS.ledrow.items[3].off()
+            SAKS.ledrow.off_for_index(0)
+            SAKS.ledrow.off_for_index(1)
+            SAKS.ledrow.off_for_index(2)
+            SAKS.ledrow.off_for_index(3)
 
         __light_status = not __light_status
 

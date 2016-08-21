@@ -27,14 +27,21 @@ import signal
 
 #定义关机键和关机状态指示灯的GPIO引脚
 GPIO.setmode(GPIO.BCM)
-pin_btn = 23
-pin_led_reboot = 7
-pin_led_halt = 8
+pin_btn = 20
+DS = 6
+SHCP = 19
+STCP = 13
 
-#初始化SAKS上相应按键和LED的状态，按键内部上拉、LED不亮
+#初始化SAKS上相应按键，按键内部上拉
 GPIO.setup(pin_btn, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(pin_led_reboot, GPIO.OUT, initial = GPIO.HIGH)
-GPIO.setup(pin_led_halt, GPIO.OUT, initial = GPIO.HIGH)
+
+GPIO.setup(DS, GPIO.OUT)
+GPIO.setup(SHCP, GPIO.OUT)
+GPIO.setup(STCP, GPIO.OUT)
+
+GPIO.output(DS, GPIO.LOW)
+GPIO.output(SHCP, GPIO.LOW)
+GPIO.output(STCP, GPIO.LOW)
 
 #初始化按下关机键的次数
 press_times = 0
@@ -42,6 +49,20 @@ press_times = 0
 count_down = 10
 led_on_reboot = 0
 led_on_halt = 0
+
+def writeBit(data):
+    GPIO.output(DS, data)
+
+    GPIO.output(SHCP, GPIO.LOW)
+    GPIO.output(SHCP, GPIO.HIGH)
+
+#写入8位LED的状态
+def writeByte(data):
+    for i in range (0, 8):
+        writeBit((data >> i) & 0x01)
+    #状态刷新信号
+    GPIO.output(STCP, GPIO.LOW)
+    GPIO.output(STCP, GPIO.HIGH)
 
 def onPress(channel):
     global press_times, count_down
@@ -51,18 +72,17 @@ def onPress(channel):
         press_times = 1
     #重启模式
     if press_times == 1:
-        GPIO.output(pin_led_reboot, 0)
-        GPIO.output(pin_led_halt, 1)
+        #黄色LED亮
+        writeByte(0x20)
         print('system will restart in %s' % (count_down))
     #关机模式
     elif press_times == 2:
-        GPIO.output(pin_led_reboot, 1)
-        GPIO.output(pin_led_halt, 0)
+        #红色LED亮
+        writeByte(0x80)
         print('system will halt in %s' % (count_down))
     #模式取消
     elif press_times == 3:
-        GPIO.output(pin_led_reboot, 1)
-        GPIO.output(pin_led_halt, 1)
+        writeByte(0x00)
         print 'cancel'
         count_down = 10
 
@@ -79,7 +99,10 @@ try:
                 sys.exit()
             led_on_reboot = not led_on_reboot
             #黄色 LED 闪烁
-            GPIO.output(pin_led_reboot, led_on_reboot)
+            if led_on_reboot:
+                writeByte(0x20)
+            else:
+                writeByte(0x00)
         #关机模式
         if press_times == 2:
             if count_down == 0:
@@ -88,7 +111,10 @@ try:
                 sys.exit()
             led_on_halt = not led_on_halt
             #红色 LED 闪烁
-            GPIO.output(pin_led_halt, led_on_halt)
+            if led_on_halt:
+                writeByte(0x80)
+            else:
+                writeByte(0x00)
 
         if press_times == 1 or press_times == 2:
             count_down -= 1
