@@ -84,10 +84,10 @@ while True:
     check()
     #正常状态，绿灯亮
     if status == 200:
-        writeByte(0x04)
-    #异常状态，黄灯亮
-    elif status == 500 or status == 404 or status == 403:
         writeByte(0x10)
+    #异常状态，蓝灯亮
+    elif status == 500 or status == 404 or status == 403:
+        writeByte(0x04)
     #错误状态，红灯亮
     else:
         writeByte(0x40)

@@ -72,7 +72,7 @@ def onPress(channel):
         press_times = 1
     #重启模式
     if press_times == 1:
-        #黄色LED亮
+        #绿色LED亮
         writeByte(0x20)
         print('system will restart in %s' % (count_down))
     #关机模式
@@ -98,7 +98,7 @@ try:
                 os.system("shutdown -r -t 5 now")
                 sys.exit()
             led_on_reboot = not led_on_reboot
-            #黄色 LED 闪烁
+            #绿色 LED 闪烁
             if led_on_reboot:
                 writeByte(0x20)
             else:
